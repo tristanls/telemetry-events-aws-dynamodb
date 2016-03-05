@@ -80,7 +80,7 @@ console.log(typeof dynamodb.instrumentedDeleteItem);
 ## Documentation
 
   * [instrument](#instrumentdynamodb-version-methods-logs-metrics)
-  * [instrumentedMethod](#instrumentedMethodparams-context-callback)
+  * [instrumentedMethod](#instrumentedmethodparams-context-callback)
 
 ### instrument(dynamodb, version, methods, logs, metrics)
 
