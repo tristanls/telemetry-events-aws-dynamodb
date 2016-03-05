@@ -1,0 +1,40 @@
+{
+  "name": "telemetry-events-aws-dynamodb",
+  "version": "0.0.0",
+  "description": "Telemetry events instrumentation for AWS SDK DynamoDB module",
+  "scripts": {
+    "inject-examples": "node scripts/injectExamples.js",
+    "readme": "npm install && node examples/readme.js",
+    "test": "node scripts/test.js"
+  },
+  "main": "index.js",
+  "devDependencies": {
+    "aws-sdk": "2.2.41",
+    "nodeunit": "0.9.x",
+    "telemetry-events": "1.0.1",
+    "telemetry-events-log": "1.0.0",
+    "telemetry-events-quantify": "0.1.0"
+  },
+  "dependencies": {
+    "clone": "1.0.2",
+    "extend": "3.0.0",
+    "mark-time": "1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:tristanls/telemetry-events-aws-dynamodb.git"
+  },
+  "keywords": [
+    "aws",
+    "dynamodb",
+    "events",
+    "instrumentation",
+    "logs",
+    "metrics",
+    "telemetry"
+  ],
+  "contributors": [
+    "Tristan Slominski <tristan.slominski@gmail.com>"
+  ],
+  "license": "MIT"
+}
