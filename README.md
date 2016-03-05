@@ -16,7 +16,7 @@ _Stability: 1 - [Experimental](https://github.com/tristanls/stability-index#stab
   * [Usage](#usage)
   * [Tests](#tests)
   * [Documentation](#documentation)
-    * [TelemetryEvents](#telemetryevents)
+    * [instrument](#instrumentdynamodb-version-methods-logs-metrics)
   * [Releases](#releases)
 
 ## Installation
@@ -79,8 +79,8 @@ console.log(typeof dynamodb.instrumentedDeleteItem);
 
 ## Documentation
 
-  * [instrument](#instrument)
-  * [instrumentedMethod](#instrumentedMethod)
+  * [instrument](#instrumentdynamodb-version-methods-logs-metrics)
+  * [instrumentedMethod](#instrumentedMethodparams-context-callback)
 
 ### instrument(dynamodb, version, methods, logs, metrics)
 
