@@ -39,7 +39,7 @@ module.exports = function instrumented(dynamodb, version, methods, logs, metrics
                 });
             }
             var startTime = markTime();
-            dynamodb.getItem(params, function(error, data)
+            dynamodb[method](params, function(error, data)
             {
                 var elapsedTime = markTime() - startTime;
                 if (metrics)
