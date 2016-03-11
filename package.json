@@ -1,6 +1,6 @@
 {
   "name": "telemetry-events-aws-dynamodb",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Telemetry events instrumentation for AWS SDK DynamoDB module",
   "scripts": {
     "inject-examples": "node scripts/injectExamples.js",
