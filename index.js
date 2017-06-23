@@ -1,47 +1,51 @@
 "use strict";
 
-var clone = require("clone");
-var extend = require("extend");
-var markTime = require("mark-time");
+const clone = require("clone");
+const extend = require("extend");
+const markTime = require("mark-time");
 
 /*
-  * `dynamodb`: _Object_ Already created AWS.DynamoDB instance.
+  * `dynamodb`: _Object_ Already created AWS.DynamoDB or AWS.DynamoDB.DocumentClient instance.
   * `version`: _String_ AWS module version.
   * `methods`: _Array_ Array of methods to instrument.
   * `logs`: _Object_ `telemetry-events-log` instance.
   * `metrics`: _Object_ `telemetry-events-quantify` instance.
+  * `exportName`: _String_ _(Default: "DynamoDB")_ Export name to use in telemetry.
   Return: _Object_ AWS.DynamoDB instance with additional instrumented methods.
 */
-module.exports = function instrumented(dynamodb, version, methods, logs, metrics)
+const instrument = (dynamodb, version, methods, logs, metrics, exportName = "DynamoDB") =>
 {
     methods.forEach(function(method)
     {
-        var name = "instrumented" + method[0].toUpperCase() + method.slice(1);
-        dynamodb[name] = function(params, context, callback)
+        const name = `instrumented${method[0].toUpperCase()}${method.slice(1)}`;
+        dynamodb[name] = (params, context, callback) =>
         {
-            var _targetMetadata = extend(true, clone(context.metadata),
+            const _targetMetadata = extend(true, clone(context.metadata),
             {
                 target: {
                     module: "aws-sdk",
                     version: version,
-                    export: "DynamoDB",
+                    export: exportName,
                     method: method
                 }
             });
             if (logs)
             {
                 logs.log(
-                    "info", "attempting DynamoDB." + method, _targetMetadata,
-                {
-                    target: {
-                        args: [context.paramsToLog || params]
+                    "info",
+                    `attempting ${exportName}.${method}`,
+                    _targetMetadata,
+                    {
+                        target: {
+                            args: [context.paramsToLog || params]
+                        }
                     }
-                });
+                );
             }
-            var startTime = markTime();
-            dynamodb[method](params, function(error, data)
+            const startTime = markTime();
+            dynamodb[method](params, (error, data) =>
             {
-                var elapsedTime = markTime() - startTime;
+                const elapsedTime = markTime() - startTime;
                 if (metrics)
                 {
                     metrics.gauge("latency",
@@ -57,7 +61,7 @@ module.exports = function instrumented(dynamodb, version, methods, logs, metrics
                     {
                         logs.log(
                             "error",
-                            "DynamoDB." + method + " failed",
+                            `${exportName}.${method} failed`,
                             _targetMetadata,
                         {
                             target: {
@@ -77,3 +81,8 @@ module.exports = function instrumented(dynamodb, version, methods, logs, metrics
     });
     return dynamodb;
 };
+
+const main = instrument;
+main.DocumentClient = (client, version, methods, logs, metrics) => instrument(client, version, methods, logs, metrics, "DynamoDB.DocumentClient");
+
+module.exports = main;

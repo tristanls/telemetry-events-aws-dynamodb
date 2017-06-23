@@ -1,40 +1,67 @@
 "use strict";
 
-var AWS = require("aws-sdk");
-var events = require("events");
-var LogTelemetryEvents = require("telemetry-events-log");
-var pkg = require("../package.json");
-var QuantifyTelemetryEvents = require("telemetry-events-quantify");
-var TelemetryEvents = require("telemetry-events");
+const AWS = require("aws-sdk");
+const events = require("events");
+const LogTelemetryEvents = require("telemetry-events-log");
+const pkg = require("../package.json");
+const QuantifyTelemetryEvents = require("telemetry-events-quantify");
+const TelemetryEvents = require("telemetry-events");
 
-var instrument = require("../index.js");
+const instrument = require("../index.js");
 
-var emitter = new events.EventEmitter();
-var telemetryEmitter = new TelemetryEvents(
+const emitter = new events.EventEmitter();
+const telemetryEmitter = new TelemetryEvents(
 {
     emitter: emitter,
     package: pkg
 });
-var logs = new LogTelemetryEvents(
+const logs = new LogTelemetryEvents(
 {
     telemetry: telemetryEmitter
 });
-var metrics = new QuantifyTelemetryEvents(
+const metrics = new QuantifyTelemetryEvents(
 {
     telemetry: telemetryEmitter
 });
 
-var dynamodb = new AWS.DynamoDB(
+let dynamodb = new AWS.DynamoDB(
 {
     region: "us-east-1"
 });
 
 dynamodb = instrument(
-    dynamodb, AWS.VERSION, ["getItem", "putItem", "deleteItem"], logs, metrics);
+    dynamodb,
+    AWS.VERSION,
+    [
+        "getItem", "putItem", "deleteItem"
+    ],
+    logs,
+    metrics
+);
+
+let documentClient = new AWS.DynamoDB.DocumentClient(
+    {
+        region: "us-east-1"
+    }
+);
+documentClient = instrument.DocumentClient(
+    documentClient,
+    AWS.VERSION,
+    [
+        "createSet", "get"
+    ],
+    logs,
+    metrics
+);
 
 console.log(typeof dynamodb.instrumentedGetItem);
 // function
 console.log(typeof dynamodb.instrumentedPutItem);
 // function
 console.log(typeof dynamodb.instrumentedDeleteItem);
+// function
+
+console.log(typeof documentClient.instrumentedCreateSet);
+// function
+console.log(typeof documentClient.instrumentedGet);
 // function
