@@ -3,14 +3,18 @@
   "version": "0.1.2",
   "description": "Telemetry events instrumentation for AWS SDK DynamoDB module",
   "scripts": {
+    "assert-latest-node": "(node -v | grep -q ${npm_package_scriptvars_latest_node}) || (echo \"Expected node version ${npm_package_scriptvars_latest_node}, got $(node -v)\" && exit 1)",
     "inject-examples": "node scripts/injectExamples.js",
     "readme": "npm install && node examples/readme.js",
-    "test": "node scripts/test.js"
+    "test": "npm run assert-latest-node && jest"
+  },
+  "scriptvars": {
+    "latest_node": "v8.1.2"
   },
   "main": "index.js",
   "devDependencies": {
     "aws-sdk": "2.76.0",
-    "nodeunit": "0.11.1",
+    "jest": "20.0.4",
     "telemetry-events": "1.1.0",
     "telemetry-events-log": "1.0.1",
     "telemetry-events-quantify": "1.0.0"
