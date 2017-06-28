@@ -1,6 +1,6 @@
 {
   "name": "telemetry-events-aws-dynamodb",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Telemetry events instrumentation for AWS SDK DynamoDB module",
   "scripts": {
     "assert-latest-node": "(node -v | grep -q ${npm_package_scriptvars_latest_node}) || (echo \"Expected node version ${npm_package_scriptvars_latest_node}, got $(node -v)\" && exit 1)",
