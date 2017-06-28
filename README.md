@@ -37,7 +37,6 @@ const LogTelemetryEvents = require("telemetry-events-log");
 const pkg = require("../package.json");
 const QuantifyTelemetryEvents = require("telemetry-events-quantify");
 const TelemetryEvents = require("telemetry-events");
-const TraceTelemetryEvents = require("telemetry-events-trace");
 
 const instrument = require("../index.js");
 
@@ -58,11 +57,6 @@ const metrics = new QuantifyTelemetryEvents(
         telemetry: telemetryEmitter
     }
 );
-const tracing = new TraceTelemetryEvents(
-    {
-        telemetry: telemetryEmitter
-    }
-);
 
 let dynamodb = new AWS.DynamoDB(
 {
@@ -77,8 +71,7 @@ dynamodb = instrument(
     ],
     {
         logs,
-        metrics,
-        tracing
+        metrics
     }
 );
 
@@ -95,8 +88,7 @@ documentClient = instrument.DocumentClient(
     ],
     {
         logs,
-        metrics,
-        tracing
+        metrics
     }
 );
 
@@ -132,7 +124,6 @@ console.log(typeof documentClient.instrumentedGet);
   * `telemetry`: _Object_ Telemetry helpers.
     * `logs`: _Object_ `telemetry-events-log` instance.
     * `metrics`: _Object_ `telemetry-events-quantify` instance.
-    * `tracing`: _Object_ `telemetry-events-trace` instance.
   * Return: _Object_ AWS.DynamoDB instance with additional instrumented methods.
 
 For every specified `method` in `methods` creates an instrumented variant on the passed in `dynamodb` instance. For example, if `methods = ["getItem"]`, the returned `dynamodb` object will have a `dynamodb.instrumentedGetItem` method.
@@ -145,7 +136,6 @@ For every specified `method` in `methods` creates an instrumented variant on the
   * `telemetry`: _Object_ Telemetry helpers.
     * `logs`: _Object_ `telemetry-events-log` instance.
     * `metrics`: _Object_ `telemetry-events-quantify` instance.
-    * `tracing`: _Object_ `telemetry-events-trace` instance.
   * Return: _Object_ AWS.DynamoDB.DocumentClient instance with additional instrumented methods.
 
 For every specified `method` in `methods` creates an instrumented variant on the passed in `client` instance. For example, if `methods = ["get"]`, the returned `client` object will have a `client.instrumentedGet` method.

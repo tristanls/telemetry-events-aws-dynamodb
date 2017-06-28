@@ -6,7 +6,6 @@ const LogTelemetryEvents = require("telemetry-events-log");
 const pkg = require("../package.json");
 const QuantifyTelemetryEvents = require("telemetry-events-quantify");
 const TelemetryEvents = require("telemetry-events");
-const TraceTelemetryEvents = require("telemetry-events-trace");
 
 const instrument = require("../index.js");
 
@@ -27,11 +26,6 @@ const metrics = new QuantifyTelemetryEvents(
         telemetry: telemetryEmitter
     }
 );
-const tracing = new TraceTelemetryEvents(
-    {
-        telemetry: telemetryEmitter
-    }
-);
 
 let dynamodb = new AWS.DynamoDB(
 {
@@ -46,8 +40,7 @@ dynamodb = instrument(
     ],
     {
         logs,
-        metrics,
-        tracing
+        metrics
     }
 );
 
@@ -64,8 +57,7 @@ documentClient = instrument.DocumentClient(
     ],
     {
         logs,
-        metrics,
-        tracing
+        metrics
     }
 );
 

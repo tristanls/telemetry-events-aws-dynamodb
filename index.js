@@ -11,7 +11,6 @@ const markTime = require("mark-time");
   * `telemetry`: _Object_ Telemetry helpers.
     * `logs`: _Object_ `telemetry-events-log` instance.
     * `metrics`: _Object_ `telemetry-events-quantify` instance.
-    * `tracing`: _Object_ `telemetry-events-tracing` instance.
   * `exportName`: _String_ _(Default: "DynamoDB")_ Export name to use in telemetry.
   Return: _Object_ AWS.DynamoDB instance with additional instrumented methods.
 */
@@ -45,7 +44,7 @@ const instrument = (dynamodb, version, methods, telemetry, exportName = "DynamoD
                 );
             }
             let traceSpan;
-            if (telemetry.tracing && context.parentSpan)
+            if (context.parentSpan)
             {
                 traceSpan = context.parentSpan.childSpan(`${exportName}.${method}`);
             }
