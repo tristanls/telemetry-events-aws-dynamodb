@@ -133,7 +133,7 @@ console.log(typeof documentClient.instrumentedGet);
     * `logs`: _Object_ `telemetry-events-log` instance.
     * `metrics`: _Object_ `telemetry-events-quantify` instance.
     * `tracing`: _Object_ `telemetry-events-trace` instance.
-  Return: _Object_ AWS.DynamoDB instance with additional instrumented methods.
+  * Return: _Object_ AWS.DynamoDB instance with additional instrumented methods.
 
 For every specified `method` in `methods` creates an instrumented variant on the passed in `dynamodb` instance. For example, if `methods = ["getItem"]`, the returned `dynamodb` object will have a `dynamodb.instrumentedGetItem` method.
 
@@ -146,7 +146,7 @@ For every specified `method` in `methods` creates an instrumented variant on the
     * `logs`: _Object_ `telemetry-events-log` instance.
     * `metrics`: _Object_ `telemetry-events-quantify` instance.
     * `tracing`: _Object_ `telemetry-events-trace` instance.
-  Return: _Object_ AWS.DynamoDB.DocumentClient instance with additional instrumented methods.
+  * Return: _Object_ AWS.DynamoDB.DocumentClient instance with additional instrumented methods.
 
 For every specified `method` in `methods` creates an instrumented variant on the passed in `client` instance. For example, if `methods = ["get"]`, the returned `client` object will have a `client.instrumentedGet` method.
 
