@@ -5,7 +5,7 @@
   "scripts": {
     "assert-latest-node": "(node -v | grep -q ${npm_package_scriptvars_latest_node}) || (echo \"Expected node version ${npm_package_scriptvars_latest_node}, got $(node -v)\" && exit 1)",
     "inject-examples": "node scripts/injectExamples.js",
-    "readme": "npm install && node examples/readme.js",
+    "readme": "npm install --no-save && node examples/readme.js",
     "test": "npm run assert-latest-node && jest"
   },
   "scriptvars": {
@@ -17,7 +17,8 @@
     "jest": "20.0.4",
     "telemetry-events": "1.1.0",
     "telemetry-events-log": "1.0.1",
-    "telemetry-events-quantify": "1.0.0"
+    "telemetry-events-quantify": "1.0.0",
+    "telemetry-events-trace": "0.1.0"
   },
   "dependencies": {
     "clone": "2.1.1",

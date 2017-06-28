@@ -8,12 +8,14 @@ const markTime = require("mark-time");
   * `dynamodb`: _Object_ Already created AWS.DynamoDB or AWS.DynamoDB.DocumentClient instance.
   * `version`: _String_ AWS module version.
   * `methods`: _Array_ Array of methods to instrument.
-  * `logs`: _Object_ `telemetry-events-log` instance.
-  * `metrics`: _Object_ `telemetry-events-quantify` instance.
+  * `telemetry`: _Object_ Telemetry helpers.
+    * `logs`: _Object_ `telemetry-events-log` instance.
+    * `metrics`: _Object_ `telemetry-events-quantify` instance.
+    * `tracing`: _Object_ `telemetry-events-tracing` instance.
   * `exportName`: _String_ _(Default: "DynamoDB")_ Export name to use in telemetry.
   Return: _Object_ AWS.DynamoDB instance with additional instrumented methods.
 */
-const instrument = (dynamodb, version, methods, logs, metrics, exportName = "DynamoDB") =>
+const instrument = (dynamodb, version, methods, telemetry, exportName = "DynamoDB") =>
 {
     methods.forEach(function(method)
     {
@@ -29,9 +31,9 @@ const instrument = (dynamodb, version, methods, logs, metrics, exportName = "Dyn
                     method: method
                 }
             });
-            if (logs)
+            if (telemetry.logs)
             {
-                logs.log(
+                telemetry.logs.log(
                     "info",
                     `attempting ${exportName}.${method}`,
                     _targetMetadata,
@@ -42,13 +44,18 @@ const instrument = (dynamodb, version, methods, logs, metrics, exportName = "Dyn
                     }
                 );
             }
+            let traceSpan;
+            if (telemetry.tracing && context.parentSpan)
+            {
+                traceSpan = context.parentSpan.childSpan(`${exportName}.${method}`);
+            }
             const startTime = markTime();
             dynamodb[method](params, (error, data) =>
             {
                 const elapsedTime = markTime() - startTime;
-                if (metrics)
+                if (telemetry.metrics)
                 {
-                    metrics.gauge("latency",
+                    telemetry.metrics.gauge("latency",
                     {
                         unit: "ms",
                         value: elapsedTime,
@@ -57,9 +64,9 @@ const instrument = (dynamodb, version, methods, logs, metrics, exportName = "Dyn
                 }
                 if (error)
                 {
-                    if (logs)
+                    if (telemetry.logs)
                     {
-                        logs.log(
+                        telemetry.logs.log(
                             "error",
                             `${exportName}.${method} failed`,
                             _targetMetadata,
@@ -67,10 +74,18 @@ const instrument = (dynamodb, version, methods, logs, metrics, exportName = "Dyn
                             target: {
                                 args: [context.paramsToLog || params]
                             },
-                            error: error,
+                            error,
                             stack: error.stack
                         });
                     }
+                    if (traceSpan)
+                    {
+                        traceSpan.tag("error", true);
+                    }
+                }
+                if (traceSpan)
+                {
+                    traceSpan.finish();
                 }
                 callback(error, data,
                 {
@@ -83,6 +98,6 @@ const instrument = (dynamodb, version, methods, logs, metrics, exportName = "Dyn
 };
 
 const main = instrument;
-main.DocumentClient = (client, version, methods, logs, metrics) => instrument(client, version, methods, logs, metrics, "DynamoDB.DocumentClient");
+main.DocumentClient = (client, version, methods, telemetry) => instrument(client, version, methods, telemetry, "DynamoDB.DocumentClient");
 
 module.exports = main;

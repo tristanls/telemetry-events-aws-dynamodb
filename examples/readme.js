@@ -6,23 +6,32 @@ const LogTelemetryEvents = require("telemetry-events-log");
 const pkg = require("../package.json");
 const QuantifyTelemetryEvents = require("telemetry-events-quantify");
 const TelemetryEvents = require("telemetry-events");
+const TraceTelemetryEvents = require("telemetry-events-trace");
 
 const instrument = require("../index.js");
 
 const emitter = new events.EventEmitter();
 const telemetryEmitter = new TelemetryEvents(
-{
-    emitter: emitter,
-    package: pkg
-});
+    {
+        emitter: emitter,
+        package: pkg
+    }
+);
 const logs = new LogTelemetryEvents(
-{
-    telemetry: telemetryEmitter
-});
+    {
+        telemetry: telemetryEmitter
+    }
+);
 const metrics = new QuantifyTelemetryEvents(
-{
-    telemetry: telemetryEmitter
-});
+    {
+        telemetry: telemetryEmitter
+    }
+);
+const tracing = new TraceTelemetryEvents(
+    {
+        telemetry: telemetryEmitter
+    }
+);
 
 let dynamodb = new AWS.DynamoDB(
 {
@@ -35,8 +44,11 @@ dynamodb = instrument(
     [
         "getItem", "putItem", "deleteItem"
     ],
-    logs,
-    metrics
+    {
+        logs,
+        metrics,
+        tracing
+    }
 );
 
 let documentClient = new AWS.DynamoDB.DocumentClient(
@@ -50,8 +62,11 @@ documentClient = instrument.DocumentClient(
     [
         "createSet", "get"
     ],
-    logs,
-    metrics
+    {
+        logs,
+        metrics,
+        tracing
+    }
 );
 
 console.log(typeof dynamodb.instrumentedGetItem);

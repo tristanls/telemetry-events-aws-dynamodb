@@ -5,6 +5,7 @@ const LogTelemetryEvents = require("telemetry-events-log");
 const pkg = require("./package.json");
 const QuantifyTelemetryEvents = require("telemetry-events-quantify");
 const TelemetryEvents = require("telemetry-events");
+const TraceTelemetryEvents = require("telemetry-events-trace");
 
 const instrument = require("./index.js").DocumentClient;
 
@@ -29,11 +30,17 @@ function createEmitters()
             telemetry
         }
     );
+    const tracing = new TraceTelemetryEvents(
+        {
+            telemetry
+        }
+    );
     return (
         {
             telemetry: emitter,
             logs,
-            metrics
+            metrics,
+            tracing
         }
     );
 };
@@ -54,8 +61,7 @@ test("calls instrumented method with original params", done =>
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         client.instrumentedGet(_params, {}, () => {});
     }
@@ -72,8 +78,7 @@ test("logs call to instrumented method using paramsToLog", done =>
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         const _paramsToLog = { log: "me" };
         emitters.telemetry.on("telemetry", event =>
@@ -116,8 +121,7 @@ test("logs call to instrumented method using original params if no paramsToLog",
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         const _params = { original: "params" };
         emitters.telemetry.on("telemetry", event =>
@@ -163,8 +167,7 @@ test("logs call to instrumented method extending metadata", done =>
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         emitters.telemetry.on("telemetry", event =>
             {
@@ -216,8 +219,7 @@ test("logs latency gauge of instrumented method", done =>
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         emitters.telemetry.on("telemetry", event =>
             {
@@ -247,6 +249,57 @@ test("logs latency gauge of instrumented method", done =>
     }
 );
 
+test("emits tracing telemetry", done =>
+    {
+        const emitters = createEmitters();
+        const _params =
+        {
+            original: "params"
+        };
+        const _metadata =
+        {
+            some: "metadata"
+        };
+        const client = instrument(
+            {
+                get: (_, callback) => callback()
+            },
+            VERSION,
+            [
+                "get"
+            ],
+            emitters
+        );
+        const tags =
+        {
+            tag: "my_tag"
+        };
+        const baggage =
+        {
+            baggage: "my_baggage"
+        };
+        const rootSpan = emitters.tracing.trace("test", tags, baggage);
+        emitters.telemetry.on("telemetry", event =>
+            {
+                if (event.type == "trace")
+                {
+                    expect(event.traceId).toBe(rootSpan._traceId);
+                    expect(event.tags).toEqual({});
+                    expect(event.baggage).toEqual(baggage);
+                    done();
+                }
+            }
+        );
+        client.instrumentedGet(_params,
+            {
+                metadata: _metadata,
+                parentSpan: rootSpan
+            },
+            () => {}
+        );
+    }
+);
+
 test("logs error result of the instrumented method extending metadata", done =>
     {
         const emitters = createEmitters();
@@ -266,8 +319,7 @@ test("logs error result of the instrumented method extending metadata", done =>
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         emitters.telemetry.on("telemetry", event =>
             {
@@ -325,8 +377,7 @@ test("calls callback with instrumented method results and includes target metada
             [
                 "get"
             ],
-            emitters.logs,
-            emitters.metrics
+            emitters
         );
         client.instrumentedGet(_params,
             {
