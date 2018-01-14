@@ -9,16 +9,16 @@
     "test": "npm run assert-latest-node && jest"
   },
   "scriptvars": {
-    "latest_node": "v8.1.2"
+    "latest_node": "v9.4.0"
   },
   "main": "index.js",
   "devDependencies": {
-    "aws-sdk": "2.76.0",
-    "jest": "20.0.4",
+    "aws-sdk": "2.181.0",
+    "jest": "22.0.6",
     "telemetry-events": "1.1.0",
-    "telemetry-events-log": "1.0.1",
+    "telemetry-events-log": "2.0.0",
     "telemetry-events-quantify": "1.0.0",
-    "telemetry-events-trace": "0.1.0"
+    "telemetry-events-trace": "0.2.0"
   },
   "dependencies": {
     "clone": "2.1.1",
